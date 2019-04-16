@@ -7,7 +7,7 @@ Based on:
 import time
 import tensorflow as tf
 
-from source.dl_utils import compute_loss, compute_gradients, apply_gradients
+from source.dl_utils import cvae_compute_loss, cvae_compute_gradients, cvae_apply_gradients
 from source.utils import create_gif, generate_and_save_images
 from source.architectures import CVAE
 
@@ -51,14 +51,14 @@ generate_and_save_images(model, 0, random_vector_for_generation, SAVE_FOLDER)
 for epoch in range(1, EPOCHS + 1):
     start_time = time.time()
     for train_x in train_dataset:
-        gradients, loss = compute_gradients(model, train_x)
-        apply_gradients(optimizer, gradients, model.trainable_variables)
+        gradients, loss = cvae_compute_gradients(model, train_x)
+        cvae_apply_gradients(optimizer, gradients, model.trainable_variables)
     end_time = time.time()
 
     if epoch % 1 == 0:
         loss = tf.keras.metrics.Mean()
         for test_x in test_dataset:
-            loss(compute_loss(model, test_x))
+            loss(cvae_compute_loss(model, test_x))
         elbo = -loss.result()
         print('Epoch: {}, Test set ELBO: {}, ''time elapse for current epoch {}'.format(epoch, elbo,
                                                                                         end_time - start_time))
