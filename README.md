@@ -1,5 +1,5 @@
 # GANs and VAEs | Learning 
-Part of a series of respositories dedicated to the __personal learning__ of different _neural network
+Part of a series of respositories dedicated to the __personal learning__ of different _neural network_.
 
 Structure of the code:
 - data: data folder container
