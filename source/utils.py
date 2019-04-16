@@ -38,12 +38,13 @@ def display_image(images_folder: str, epoch_no: int) -> PIL.Image:
     return PIL.Image.open(images_folder + 'image_at_epoch_{:04d}.png'.format(epoch_no))
 
 
-def generate_and_save_images(model, epoch, test_input):
+def generate_and_save_images(model, epoch, test_input, images_folder):
     """
     Generate and save image, used to see the evolution of the neural network
     :param model: neural network model
     :param epoch: epoch number the model is generating
     :param test_input: random noise introduced to the generative model
+    :param images_folder: folder containing images with the pattern 'image*.png'
     :return: generated image
     """
     predictions = model.sample(test_input)
@@ -55,6 +56,6 @@ def generate_and_save_images(model, epoch, test_input):
         plt.axis('off')
 
     # tight_layout minimizes the overlap between 2 sub-plots
-    plt.savefig('image_at_epoch_{:04d}.png'.format(epoch))
+    plt.savefig(images_folder + 'image_at_epoch_{:04d}.png'.format(epoch))
     plt.show()
 
