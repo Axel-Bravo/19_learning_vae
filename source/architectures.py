@@ -1,6 +1,32 @@
 import tensorflow as tf
 
 
+class AE(tf.keras.Model):
+    def __init__(self, encoder_dim):
+        """
+        Convolutional Autoencoder
+        """
+        super(AE, self).__init__()
+        self.encoder_dim = encoder_dim
+        self.encoder_net = tf.keras.Sequential([
+            tf.keras.layers.InputLayer(input_shape=(28, 28, 1)),
+            tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), activation='relu'),
+            tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation='relu'),
+            tf.keras.layers.Flatten(encoder_dim)])
+
+        self.decoder_net = tf.keras.Sequential([
+            tf.keras.layers.InputLayer(input_shape=(encoder_dim,)),
+            tf.keras.layers.Dense(units=7 * 7 * 32, activation=tf.nn.relu),
+            tf.keras.layers.Reshape(target_shape=(7, 7, 32)),
+            tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=(2, 2), padding="SAME",
+                                            activation='relu'),
+            tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=(2, 2), padding="SAME",
+                                            activation='relu'),
+            # No activation
+            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=(1, 1),
+                                            padding="SAME")])
+
+
 class CVAE(tf.keras.Model):
     def __init__(self, latent_dim):
         """
