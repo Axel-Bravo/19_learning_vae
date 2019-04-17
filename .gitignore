@@ -110,3 +110,5 @@ venv.bak/
 data/*
 results/001_VAE_MNIST/*
 results/002_VAE_EMNIST/*
+logs/
+.ipynb_checkpoints/
