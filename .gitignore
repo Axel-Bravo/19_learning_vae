@@ -107,8 +107,6 @@ venv.bak/
 .idea/
 
 # Project
-data/*
-results/001_VAE_MNIST/*
-results/002_VAE_EMNIST/*
+data/
 logs/
 .ipynb_checkpoints/
