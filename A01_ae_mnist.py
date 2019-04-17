@@ -2,7 +2,7 @@
 import datetime
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from source.A01_ae_mnist_utils import AE
+from source.A01_ae_mnist_utils import AE_Sparse
 
 
 @tf.function
@@ -65,16 +65,17 @@ train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 test_loss = tf.keras.metrics.Mean(name='test_loss', dtype=tf.float32)
 test_accuracy = tf.keras.metrics.BinaryAccuracy(name='test_accuracy')
 
-model = AE(encoder_dim=ENCODER_DIM)
+model = AE_Sparse(encoder_dim=ENCODER_DIM)
 
 
 # Tensorboard
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+LOG_BASE_FOLDER = 'logs/A01_ae_mnist_Sparse/'
 
-train_log_dir = 'logs/A01_ae_mnist/' + current_time + '/train'
-test_log_dir = 'logs/A01_ae_mnist/' + current_time + '/test'
-input_image_log_dir = 'logs/A01_ae_mnist/' + current_time + '/input_image'
-output_image_log_dir = 'logs/A01_ae_mnist/' + current_time + '/output_image'
+train_log_dir = LOG_BASE_FOLDER + current_time + '/train'
+test_log_dir = LOG_BASE_FOLDER + current_time + '/test'
+input_image_log_dir = LOG_BASE_FOLDER + current_time + '/input_image'
+output_image_log_dir = LOG_BASE_FOLDER + current_time + '/output_image'
 
 train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 test_summary_writer = tf.summary.create_file_writer(test_log_dir)
