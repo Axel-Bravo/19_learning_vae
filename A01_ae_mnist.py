@@ -1,7 +1,8 @@
 # %% Import and function declaration
 import datetime
 import tensorflow as tf
-from source.architectures import AE
+import matplotlib.pyplot as plt
+from source.A01_ae_mnist_utils import AE
 
 
 @tf.function
@@ -28,7 +29,7 @@ def test_step(image):
 
 
 # %% Data Load and pre-processing
-(train_images, _), (test_images, _) = tf.keras.datasets.mnist.load_data()
+(train_images, _), (test_images, test_images_label) = tf.keras.datasets.mnist.load_data()
 train_images = train_images.reshape(train_images.shape[0], 28, 28, 1).astype('float32')
 test_images = test_images.reshape(test_images.shape[0], 28, 28, 1).astype('float32')
 
@@ -52,9 +53,8 @@ test_dataset = tf.data.Dataset.from_tensor_slices(test_images).shuffle(TEST_BUF)
 
 # %% Neural Network - Definition
 INPUT_SHAPE = (28, 28, 1)
-EPOCHS = 150
-ENCODER_DIM = 100
-NUM_EXAMPLES_TO_GENERATE = 16
+EPOCHS = 100
+ENCODER_DIM = 128
 
 loss_object = tf.keras.losses.BinaryCrossentropy()
 optimizer = tf.keras.optimizers.Adam(1e-4)
@@ -71,10 +71,10 @@ model = AE(encoder_dim=ENCODER_DIM)
 # Tensorboard
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 
-train_log_dir = 'logs/000_ae_mnist/' + current_time + '/train'
-test_log_dir = 'logs/000_ae_mnist/' + current_time + '/test'
-input_image_log_dir = 'logs/000_ae_mnist/' + current_time + '/input_image'
-output_image_log_dir = 'logs/000_ae_mnist/' + current_time + '/output_image'
+train_log_dir = 'logs/A01_ae_mnist/' + current_time + '/train'
+test_log_dir = 'logs/A01_ae_mnist/' + current_time + '/test'
+input_image_log_dir = 'logs/A01_ae_mnist/' + current_time + '/input_image'
+output_image_log_dir = 'logs/A01_ae_mnist/' + current_time + '/output_image'
 
 train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 test_summary_writer = tf.summary.create_file_writer(test_log_dir)
@@ -122,3 +122,11 @@ for epoch in range(EPOCHS):
     test_loss.reset_states()
     train_accuracy.reset_states()
     test_accuracy.reset_states()
+
+
+#%% Neural Network - Manifold distribution study
+x_test_encoded = model.encode(test_images)
+plt.figure(figsize=(6, 6))
+plt.scatter(x_test_encoded[:, 0], x_test_encoded[:, 1], c=test_images_label)
+plt.colorbar()
+plt.show()
