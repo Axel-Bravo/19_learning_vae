@@ -1,19 +1,6 @@
 import numpy as np
 import tensorflow as tf
 
-
-# Convolutional Autoencoder
-@tf.function
-def ae_train_step(model, optimizer, input):
-    with tf.GradientTape() as tape:
-        predictions = model(input)
-        loss = tf.keras.losses.binary_crossentropy(input, predictions)
-    grads = tape.gradient(loss, model.trainable_variables)
-    optimizer.apply_gradients(zip(grads, model.trainable_variables))
-
-    return loss
-
-
 # Convolutional Variational Autoencoder
 def cvae_log_normal_pdf(sample, mean, logvar, raxis=1):
     log2pi = tf.math.log(2. * np.pi)

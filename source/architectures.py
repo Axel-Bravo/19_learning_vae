@@ -1,8 +1,10 @@
 import tensorflow as tf
+from tensorflow.keras.layers import Dense, Flatten, Conv2D, Conv2DTranspose, Reshape
+from tensorflow.keras import Model
 
 
-class AE(tf.keras.Model):
-    def __init__(self, input_shape, encoder_dim):
+class AE(Model):
+    def __init__(self, encoder_dim):
         """
         Convolutional Autoencoder
         """
@@ -10,32 +12,27 @@ class AE(tf.keras.Model):
         self.encoder_dim = encoder_dim
 
         # Encoder
-        self.input_enc = tf.keras.layers.InputLayer(input_shape=input_shape)
-        self.conv_1 = tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), activation='relu')
-        self.conv_2 = tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation='relu')
-        self.flatten = tf.keras.layers.Flatten()
-        self.dense_1 = tf.keras.layers.Dense(self.encoder_dim)
+        self.conv_1 = Conv2D(filters=32, kernel_size=3, strides=(2, 2), activation='relu')
+        self.conv_2 = Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation='relu')
+        self.flatten = Flatten()
+        self.dense_1 = Dense(self.encoder_dim)
 
         # Decoder
-        self.input_dec = tf.keras.layers.InputLayer(input_shape=(self.encoder_dim,))
-
-        self.dense_1_dec = tf.keras.layers.Dense(units=7 * 7 * 32, activation=tf.nn.relu)
-        self.reshape = tf.keras.layers.Reshape(target_shape=(7, 7, 32))
-        self.conv_tp_1 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=(2, 2), padding="SAME",
-                                            activation='relu')
-        self.conv_tp_2 = tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=(2, 2), padding="SAME",
-                                            activation='relu')
-        self.conv_tp_3 = tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=(1, 1), padding="SAME")
+        self.dense_1_dec = Dense(units=7 * 7 * 32, activation=tf.nn.relu)
+        self.reshape = Reshape(target_shape=(7, 7, 32))
+        self.conv_tp_1 = Conv2DTranspose(filters=64, kernel_size=3, strides=(2, 2), padding="SAME", activation='relu')
+        self.conv_tp_2 = Conv2DTranspose(filters=32, kernel_size=3, strides=(2, 2), padding="SAME", activation='relu')
+        self.conv_tp_3 = Conv2DTranspose(filters=1, kernel_size=3, strides=(1, 1), padding="SAME")
 
     def encode(self, x):
-        x = self.conv_1(self.input_enc(x))
+        x = self.conv_1(x)
         x = self.conv_2(x)
         x = self.flatten(x)
         x = self.dense_1(x)
         return x
 
     def decode(self, x):
-        x = self.dense_1_dec(self.input_dec(x))
+        x = self.dense_1_dec(x)
         x = self.reshape(x)
         x = self.conv_tp_1(x)
         x = self.conv_tp_2(x)
