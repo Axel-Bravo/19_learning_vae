@@ -1,17 +1,17 @@
 import numpy as np
 import tensorflow as tf
 
+
 # Convolutional Autoencoder
 @tf.function
 def ae_train_step(model, optimizer, input):
-  with tf.GradientTape() as tape:
-    predictions = model(input)
-    loss = tf.reduce_mean(
-        tf.keras.losses.BinaryCrossentropy(input, predictions))
-  grads = tape.gradient(loss, model.trainable_variables)
-  optimizer.apply_gradients(zip(grads, model.trainable_variables))
+    with tf.GradientTape() as tape:
+        predictions = model(input)
+        loss = tf.keras.losses.binary_crossentropy(input, predictions)
+    grads = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(grads, model.trainable_variables))
 
-  return loss
+    return loss
 
 
 # Convolutional Variational Autoencoder

@@ -2,29 +2,50 @@ import tensorflow as tf
 
 
 class AE(tf.keras.Model):
-    def __init__(self, encoder_dim):
+    def __init__(self, input_shape, encoder_dim):
         """
         Convolutional Autoencoder
         """
         super(AE, self).__init__()
         self.encoder_dim = encoder_dim
-        self.encoder_net = tf.keras.Sequential([
-            tf.keras.layers.InputLayer(input_shape=(28, 28, 1)),
-            tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), activation='relu'),
-            tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation='relu'),
-            tf.keras.layers.Flatten(encoder_dim)])
 
-        self.decoder_net = tf.keras.Sequential([
-            tf.keras.layers.InputLayer(input_shape=(encoder_dim,)),
-            tf.keras.layers.Dense(units=7 * 7 * 32, activation=tf.nn.relu),
-            tf.keras.layers.Reshape(target_shape=(7, 7, 32)),
-            tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=(2, 2), padding="SAME",
-                                            activation='relu'),
-            tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=(2, 2), padding="SAME",
-                                            activation='relu'),
-            # No activation
-            tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=(1, 1),
-                                            padding="SAME")])
+        # Encoder
+        self.input_enc = tf.keras.layers.InputLayer(input_shape=input_shape)
+        self.conv_1 = tf.keras.layers.Conv2D(filters=32, kernel_size=3, strides=(2, 2), activation='relu')
+        self.conv_2 = tf.keras.layers.Conv2D(filters=64, kernel_size=3, strides=(2, 2), activation='relu')
+        self.flatten = tf.keras.layers.Flatten()
+        self.dense_1 = tf.keras.layers.Dense(self.encoder_dim)
+
+        # Decoder
+        self.input_dec = tf.keras.layers.InputLayer(input_shape=(self.encoder_dim,))
+
+        self.dense_1_dec = tf.keras.layers.Dense(units=7 * 7 * 32, activation=tf.nn.relu)
+        self.reshape = tf.keras.layers.Reshape(target_shape=(7, 7, 32))
+        self.conv_tp_1 = tf.keras.layers.Conv2DTranspose(filters=64, kernel_size=3, strides=(2, 2), padding="SAME",
+                                            activation='relu')
+        self.conv_tp_2 = tf.keras.layers.Conv2DTranspose(filters=32, kernel_size=3, strides=(2, 2), padding="SAME",
+                                            activation='relu')
+        self.conv_tp_3 = tf.keras.layers.Conv2DTranspose(filters=1, kernel_size=3, strides=(1, 1), padding="SAME")
+
+    def encode(self, x):
+        x = self.conv_1(self.input_enc(x))
+        x = self.conv_2(x)
+        x = self.flatten(x)
+        x = self.dense_1(x)
+        return x
+
+    def decode(self, x):
+        x = self.dense_1_dec(self.input_dec(x))
+        x = self.reshape(x)
+        x = self.conv_tp_1(x)
+        x = self.conv_tp_2(x)
+        x = self.conv_tp_3(x)
+        return x
+
+    def call(self, x):
+        x = self.encode(x)
+        x = self.decode(x)
+        return x
 
 
 class CVAE(tf.keras.Model):
