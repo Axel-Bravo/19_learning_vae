@@ -85,7 +85,7 @@ output_image_writer = tf.summary.create_file_writer(output_image_log_dir)
 
 #%% Neural Network - Training
 
-# !tensorboard --logdir logs/gradient_tape
+# !tensorboard --logdir logs/A01_ae_mnist_Sparse
 
 for epoch in range(EPOCHS):
     image_counter = 0
