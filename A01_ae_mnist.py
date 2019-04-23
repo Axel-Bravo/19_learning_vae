@@ -74,13 +74,9 @@ LOG_BASE_FOLDER = 'logs/A01_ae_mnist_Sparse/'
 
 train_log_dir = LOG_BASE_FOLDER + current_time + '/train'
 test_log_dir = LOG_BASE_FOLDER + current_time + '/test'
-input_image_log_dir = LOG_BASE_FOLDER + current_time + '/input_image'
-output_image_log_dir = LOG_BASE_FOLDER + current_time + '/output_image'
 
 train_summary_writer = tf.summary.create_file_writer(train_log_dir)
 test_summary_writer = tf.summary.create_file_writer(test_log_dir)
-input_image_writer = tf.summary.create_file_writer(input_image_log_dir)
-output_image_writer = tf.summary.create_file_writer(output_image_log_dir)
 
 
 #%% Neural Network - Training
