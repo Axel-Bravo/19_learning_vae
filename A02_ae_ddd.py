@@ -1,10 +1,9 @@
-# %% Import and function declaration
+#%% Import and function declaration
 import cv2
 import glob
 import datetime
 import numpy as np
 import tensorflow as tf
-import matplotlib.pyplot as plt
 from source.A02_ae_ddd_utils import AE
 
 
@@ -32,31 +31,21 @@ def process_data(data_path: str) -> np.ndarray:
     return data
 
 
-# Tensorflow
-# @tf.function
-# def train_step(image):
-#     with tf.GradientTape() as tape:
-#         predictions = model(image)
-#         loss = loss_object(image, predictions)
-#     grads = tape.gradient(loss, model.trainable_variables)
-#     optimizer.apply_gradients(zip(grads, model.trainable_variables))
-#
-#     train_loss(loss)
-#     train_accuracy(image, predictions)
-#
-#     return predictions
-#
-#
-# @tf.function
-# def test_step(image):
-#     predictions = model(image)
-#     t_loss = loss_object(image, predictions)
-#
-#     test_loss(t_loss)
-#     test_accuracy(image, predictions)
+@tf.function
+def train_step(image_input, image_output):
+    with tf.GradientTape() as tape:
+        predictions = model(image_input)
+        loss = loss_object(image_output, predictions)
+    grads = tape.gradient(loss, model.trainable_variables)
+    optimizer.apply_gradients(zip(grads, model.trainable_variables))
+
+    train_loss(loss)
+    train_accuracy(image_output, predictions)
+
+    return predictions
 
 
-# %% Data Load and pre-processing
+#%% Data Load and pre-processing
 train_input_filepath = 'data/Denoising Dirty Documents/train/*.png'
 train_output_filepath = 'data/Denoising Dirty Documents/train_cleaned/*.png'
 test_filepath = 'data/Denoising Dirty Documents/test/*.png'
@@ -74,7 +63,7 @@ train_output_dataset = tf.data.Dataset.from_tensor_slices(train_output).shuffle(
 test_dataset = tf.data.Dataset.from_tensor_slices(test).shuffle(BUFFER).batch(BATCH_SIZE)
 
 
-# %% Neural Network - Definition
+#%% Neural Network - Definition
 INPUT_SHAPE = (540, 258, 1)
 EPOCHS = 100
 ENCODER_DIM = 128
@@ -96,11 +85,36 @@ current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 LOG_BASE_FOLDER = 'logs/A02_ae_ddd/'
 
 train_log_dir = LOG_BASE_FOLDER + current_time + '/train'
-test_log_dir = LOG_BASE_FOLDER + current_time + '/test'
-input_image_log_dir = LOG_BASE_FOLDER + current_time + '/input_image'
-output_image_log_dir = LOG_BASE_FOLDER + current_time + '/output_image'
-
 train_summary_writer = tf.summary.create_file_writer(train_log_dir)
-test_summary_writer = tf.summary.create_file_writer(test_log_dir)
-input_image_writer = tf.summary.create_file_writer(input_image_log_dir)
-output_image_writer = tf.summary.create_file_writer(output_image_log_dir)
+
+
+#%% Neural Network - Training
+
+# !tensorboard --logdir logs/A02_ae_ddd
+
+for epoch in range(EPOCHS):
+    image_counter = 0
+
+    for i_image_input, i_image_output in train_input_dataset, train_output_dataset:
+        prediction = train_step(image_input=i_image_input, image_output=i_image_output)
+
+        if image_counter <= 6:  # Limit the number of images per epoch
+            with train_summary_writer.as_default():
+                tf.summary.image("Input image data", i_image_input, max_outputs=6, step=5)
+                tf.summary.image("Output image data", i_image_output, max_outputs=6, step=5)
+                tf.summary.image("Predicted image data", prediction, max_outputs=6, step=5)
+            image_counter += 1
+
+    with train_summary_writer.as_default():
+        tf.summary.scalar('loss', train_loss.result(), step=epoch)
+        tf.summary.scalar('accuracy', train_accuracy.result(), step=epoch)
+
+    # Console
+    template = 'Epoch {}, Loss: {}, Accuracy: {}, Test Loss: {}, Test Accuracy: {}'
+    print(template.format(epoch + 1,
+                          train_loss.result(),
+                          train_accuracy.result() * 100))
+
+    # Reset metrics every epoch
+    train_loss.reset_states()
+    train_accuracy.reset_states()
