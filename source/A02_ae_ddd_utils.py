@@ -3,7 +3,6 @@ from tensorflow.keras.layers import Dense, Flatten, Conv2D, Conv2DTranspose, Dro
 from tensorflow.keras import Model
 
 
-
 # 1 Base
 class AE(Model):
     def __init__(self, encoder_dim):

@@ -3,10 +3,9 @@ import cv2
 import glob
 import datetime
 import numpy as np
-from PIL import Image
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from source.A01_ae_mnist_utils import AE_Sparse
+from source.A02_ae_ddd_utils import AE
 
 
 # Data processing
@@ -89,8 +88,7 @@ train_accuracy = tf.keras.metrics.BinaryAccuracy(name='train_accuracy')
 test_loss = tf.keras.metrics.Mean(name='test_loss', dtype=tf.float32)
 test_accuracy = tf.keras.metrics.BinaryAccuracy(name='test_accuracy')
 
-# TODO: pending of modification
-model = AE_Sparse(encoder_dim=ENCODER_DIM)
+model = AE(encoder_dim=ENCODER_DIM)
 
 
 # Tensorboard
